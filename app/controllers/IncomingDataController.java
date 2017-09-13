@@ -71,10 +71,15 @@ public class IncomingDataController extends Controller {
                 case Event.ORDER_UPDATE:
                     log.debug("Order event received");
                     return executeOrderEvent(json, messages);
+                case Event.INSTALLATION_UPDATE:
+                case Event.INSTALLATION_CREATE:
+                // Old events are kept for backwards compatibility. They can be removed after Legolas update.
                 case Event.PLUGIN_CONFIG_UPDATE:
                 case Event.PLUGIN_INSTALL:
                     log.debug("Installation event received");
                     return complete(executeInstallationEvents(event, json, messages));
+                case Event.INSTALLATION_DELETE:
+                // Old events are kept for backwards compatibility. They can be removed after Legolas update.
                 case Event.PLUGIN_UNINSTALL:
                     log.debug("Uninstall event received");
                     return complete(ok());
@@ -155,7 +160,8 @@ public class IncomingDataController extends Controller {
             errorMessages.put("payload.data", messages.at(MessageKey.MISSING_PAYLOAD_DATA));
             return badRequest(ErrorUtil.toJson(BAD_REQUEST, messages.at(MessageKey.INVALID_JSON), errorMessages));
         }
-        if (event.equals(Event.PLUGIN_INSTALL)) {
+        // Old events are kept for backwards compatibility. They can be removed after Legolas update.
+        if (event.equals(Event.INSTALLATION_CREATE) || if (Event.PLUGIN_INSTALL)) {
             return installationHelper.newInstall(data, messages);
         } else {
             return updateHelper.updateConfiguration(data, messages);
